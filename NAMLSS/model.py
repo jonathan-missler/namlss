@@ -14,7 +14,7 @@ class NAMLSS(tf.keras.module):
                  feature_dropout=0.0,
                  dropout=0.0,
                  **kwargs):
-        super(namlss, self).__init__()
+        super(NAMLSS, self).__init__()
         self._num_inputs = num_inputs
         if isinstance(num_units, list):
             assert len(num_units) == num_inputs
