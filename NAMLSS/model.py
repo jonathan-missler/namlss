@@ -1,6 +1,8 @@
 import tensorflow as tf
+from NAMLSS.families import Gaussian
 
-class namlss(tf.keras.module):
+
+class NAMLSS(tf.keras.module):
 
 
     def __init__(self,
@@ -8,6 +10,7 @@ class namlss(tf.keras.module):
                  num_units,
                  trainable=True,
                  shallow=True,
+                 family=Gaussian(two_param=True),
                  feature_dropout=0.0,
                  dropout=0.0,
                  **kwargs):
@@ -20,6 +23,7 @@ class namlss(tf.keras.module):
             self._num_units = [num_units for _ in range(self._num_inputs)]
         self._trainable = trainable
         self._shallow = shallow
+        self._family = family
         self._feature_dropout = feature_dropout
         self._dropout = dropout
         self._kwargs = kwargs
