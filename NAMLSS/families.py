@@ -5,11 +5,11 @@ import tensorflow as tf
 class Gaussian:
 
     def __init__(self, two_param=True):
-        self.two_param = two_param
+        self._two_param = two_param
 
     def loss(self, loc, scale, val):
 
-        if self.two_param:
+        if self._two_param:
             dist = tfp.distributions.Normal(loc=loc, scale=tf.exp(scale))
             out = -tf.reduce_sum(dist.log_prob(value=val))
         else:
@@ -19,7 +19,7 @@ class Gaussian:
 
     def log_likelihood(self, loc, scale, val):
 
-        if self.two_param:
+        if self._two_param:
             dist = tfp.distributions.Normal(loc=loc, scale=tf.exp(scale))
             out = tf.reduce_sum(dist.log_prob(value=val))
 
