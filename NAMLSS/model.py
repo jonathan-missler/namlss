@@ -2,7 +2,7 @@ import tensorflow as tf
 from NAMLSS.families import Gaussian
 
 
-class NAMLSS(tf.keras.module):
+class NamLSS(tf.keras.module):
 
 
     def __init__(self,
@@ -14,7 +14,7 @@ class NAMLSS(tf.keras.module):
                  feature_dropout=0.0,
                  dropout=0.0,
                  **kwargs):
-        super(NAMLSS, self).__init__()
+        super(NamLSS, self).__init__()
         self._num_inputs = num_inputs
         if isinstance(num_units, list):
             assert len(num_units) == num_inputs
