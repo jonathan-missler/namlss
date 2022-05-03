@@ -1,5 +1,6 @@
 import tensorflow as tf
 from NAMLSS.families import Gaussian
+from neural_additive_models import models
 
 
 class NamLSS(tf.keras.module):
@@ -27,3 +28,30 @@ class NamLSS(tf.keras.module):
         self._feature_dropout = feature_dropout
         self._dropout = dropout
         self._kwargs = kwargs
+
+    def build(self):
+
+        self.mod1 = models.NAM(num_inputs=self._num_inputs, num_units=self._num_units, trainable=self._trainable,
+                          shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
+                               **self._kwargs)
+        self.mod2 = models.NAM(num_inputs=self._num_inputs, num_units=self._num_units, trainable=self._trainable,
+                          shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
+                               **self._kwargs)
+
+    def call(self, x, training=True):
+        out1 = self.mod1.call(x, training=training)
+        out2 = self.mod2.call(x, training=training)
+
+        return out1, out2
+
+    def _name_scope(self):
+        name_scope1 = self.mod1._namescope()
+        name_scope2 = self.mod2._namescope()
+
+        return name_scope1, name_scope2
+
+    def calc_outputs(self, x, training=True):
+        outputs1 = self.mod1.calc_outputs(x, training=True)
+        outputs2 = self.mod2.calc_outputs(x, training=True)
+
+        return outputs1, outputs2
