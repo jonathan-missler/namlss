@@ -51,7 +51,7 @@ class NamLSS(tf.keras.module):
         return name_scope1, name_scope2
 
     def calc_outputs(self, x, training=True):
-        outputs1 = self.mod1.calc_outputs(x, training=True)
-        outputs2 = self.mod2.calc_outputs(x, training=True)
+        outputs1 = self.mod1.calc_outputs(x, training=training)
+        outputs2 = self.mod2.calc_outputs(x, training=training)
 
         return outputs1, outputs2
