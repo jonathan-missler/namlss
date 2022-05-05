@@ -5,7 +5,6 @@ from neural_additive_models import models
 
 class NamLSS(tf.keras.module):
 
-
     def __init__(self,
                  num_inputs,
                  num_units,
