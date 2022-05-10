@@ -24,3 +24,4 @@ class Gaussian:
             out = tf.reduce_sum(dist.log_prob(value=val))
 
         return out
+    
