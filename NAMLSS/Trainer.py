@@ -22,7 +22,7 @@ class Trainer:
 
     def train_epoch(self, train_batch):
         for x, y in train_batch:
-            loss_val, grads = self.grad(x,y)
+            loss_val, grads = self.grad(x, y)
             self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
 
             self.epoch_loss_avg.update_state(loss_val)
@@ -44,6 +44,3 @@ class Trainer:
                                                           self.epoch_loss_avg.result()))
 
         return train_loss_results
-
-
-

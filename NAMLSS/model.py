@@ -31,10 +31,10 @@ class NamLSS(tf.keras.module):
     def build(self):
 
         self.mod1 = models.NAM(num_inputs=self._num_inputs, num_units=self._num_units, trainable=self._trainable,
-                          shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
+                               shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
                                **self._kwargs)
         self.mod2 = models.NAM(num_inputs=self._num_inputs, num_units=self._num_units, trainable=self._trainable,
-                          shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
+                               shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
                                **self._kwargs)
 
     def call(self, x, training=True):
