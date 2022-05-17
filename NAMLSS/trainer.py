@@ -25,19 +25,28 @@ class Trainer:
             loss_val, grads = self.grad(x, y)
             self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
 
-            self.epoch_loss_avg.update_state(loss_val)
+            self.epoch_train_loss_avg.update_state(loss_val)
+
+    def val_epoch(self, val_batch):
+        for x, y in val_batch:
+            loss_val = self.loss(x, y, training=False)
+
+            self.epoch_val_loss_avg.update_state(loss_val)
 
     def run_training(self, train_batch, val_batch):
         train_loss_results = []
+        val_loss_results = []
 
         num_epochs = self.config.num_epochs
 
         for epoch in range(num_epochs):
-            self.epoch_loss_avg = tf.keras.metrics.Mean()
+            self.epoch_train_loss_avg = tf.keras.metrics.Mean()
+            self.epoch_val_loss_avg = tf.keras.metrics.Mean()
 
             self.train_epoch(train_batch)
 
-            train_loss_results.append(self.epoch_loss_avg.result())
+            train_loss_results.append(self.epoch_train_loss_avg.result())
+            val_loss_results.append(self.epoch_val_loss_avg.result())
 
             if epoch % 5 == 0:
                 print("Epoch {:03d}: Loss: {:.3f}".format(epoch,
