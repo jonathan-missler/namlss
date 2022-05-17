@@ -44,12 +44,14 @@ class Trainer:
             self.epoch_val_loss_avg = tf.keras.metrics.Mean()
 
             self.train_epoch(train_batch)
+            self.val_epoch(val_batch)
 
             train_loss_results.append(self.epoch_train_loss_avg.result())
             val_loss_results.append(self.epoch_val_loss_avg.result())
 
             if epoch % 5 == 0:
-                print("Epoch {:03d}: Loss: {:.3f}".format(epoch,
-                                                          self.epoch_loss_avg.result()))
+                print("Epoch {:03d}: Train Loss: {:.3f} Validation Loss: {:.3f}".format(epoch,
+                                                                                    self.epoch_train_loss_avg.result(),
+                                                                                    self.epoch_val_loss_avg.result()))
 
         return train_loss_results
