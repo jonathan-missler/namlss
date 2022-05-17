@@ -54,4 +54,4 @@ class Trainer:
                                                                                     self.epoch_train_loss_avg.result(),
                                                                                     self.epoch_val_loss_avg.result()))
 
-        return train_loss_results
+        return train_loss_results, val_loss_results
