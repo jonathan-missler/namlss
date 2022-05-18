@@ -1,7 +1,5 @@
 from neural_additive_models.data_utils import load_dataset, split_training_dataset
 import tensorflow as tf
-import sklearn
-import pandas as pd
 import numpy as np
 from NAMLSS.model import NamLSS
 from NAMLSS.trainer import Trainer
@@ -15,8 +13,11 @@ config = defaults()
 # load and prepare data
 features, target, _ = load_dataset("Housing")
 
-train_features, train_target, val_features, val_target = split_training_dataset(features, target, n_splits=1,
-                                                                                stratified=False, random_state=1866)
+split_generator = split_training_dataset(features, target, n_splits=1, stratified=False, random_state=1866)
+
+for i in split_generator:
+    (train_features, train_target), (val_features, val_target) = i
+
 train_data = tf.data.Dataset.from_tensor_slices((train_features, train_target))
 val_data = tf.data.Dataset.from_tensor_slices((val_features, val_target))
 
@@ -35,6 +36,8 @@ num_inputs = train_features.shape[-1]
 
 
 # build objects for training
+config.num_epochs = 10
+
 family = Gaussian(two_param=True)
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
                dropout=config.dropout, shallow=config.shallow, activation=config.activation)

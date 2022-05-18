@@ -3,7 +3,7 @@ from NAMLSS.families import Gaussian
 from neural_additive_models import models
 
 
-class NamLSS(tf.keras.module):
+class NamLSS(tf.keras.Model):
 
     def __init__(self,
                  num_inputs,
@@ -28,14 +28,16 @@ class NamLSS(tf.keras.module):
         self._dropout = dropout
         self._kwargs = kwargs
 
-    def build(self):
-
+    def build(self, input_shape):
         self.mod1 = models.NAM(num_inputs=self._num_inputs, num_units=self._num_units, trainable=self._trainable,
                                shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
                                **self._kwargs)
         self.mod2 = models.NAM(num_inputs=self._num_inputs, num_units=self._num_units, trainable=self._trainable,
                                shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
                                **self._kwargs)
+
+        self.mod1.build(input_shape=input_shape)
+        self.mod2.build(input_shape=input_shape)
 
     def call(self, x, training=True):
         out1 = self.mod1.call(x, training=training)
