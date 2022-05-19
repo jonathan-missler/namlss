@@ -42,8 +42,8 @@ class NamLSS(tf.keras.Model):
         self.mod2.build(input_shape=input_shape)
 
     def call(self, x, training=True):
-        out1 = self.mod1.call(x, training=training)
-        out2 = self.mod2.call(x, training=training)
+        out1 = self.mod1(x, training=training)
+        out2 = self.mod2(x, training=training)
 
         return out1, out2
 

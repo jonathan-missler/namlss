@@ -1,4 +1,3 @@
-import neural_additive_models
 from neural_additive_models.data_utils import load_dataset, split_training_dataset
 import tensorflow as tf
 import numpy as np
