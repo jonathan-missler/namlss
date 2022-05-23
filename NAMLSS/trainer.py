@@ -49,7 +49,7 @@ class Trainer:
             train_loss_results.append(self.epoch_train_loss_avg.result())
             val_loss_results.append(self.epoch_val_loss_avg.result())
 
-            print("Epoch {:03d}: Train Loss: {:.3f} Validation Loss: {:.3f}".format(epoch,
+            print("Epoch {:03d}: Train Loss: {:.3f} Validation Loss: {:.3f}".format(epoch+1,
                                                                                     self.epoch_train_loss_avg.result(),
                                                                                     self.epoch_val_loss_avg.result()))
 
