@@ -10,7 +10,7 @@ class Gaussian:
     def loss(self, loc, scale, val):
 
         if self._two_param:
-            dist = tfp.distributions.Normal(loc=loc, scale=tf.exp(scale))
+            dist = tfp.distributions.Normal(loc=loc, scale=tf.sqrt(tf.exp(scale)))
             out = -tf.reduce_sum(dist.log_prob(value=val))
         else:
             mse = tf.keras.losses.MeanSquaredError()
@@ -24,4 +24,3 @@ class Gaussian:
             out = tf.reduce_sum(dist.log_prob(value=val))
 
         return out
-    

@@ -9,7 +9,7 @@ from NAMLSS.config import defaults
 # define the config
 config = defaults()
 config.batch_size = 1024
-config.activation = "relu"
+config.activation = "exu"
 
 # load and prepare data
 features, target, _ = load_dataset("Housing")
@@ -38,6 +38,8 @@ num_inputs = train_features.shape[-1]
 
 # build objects for training
 config.num_epochs = 20
+config.lr = 0.001
+
 
 family = Gaussian(two_param=True)
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
@@ -46,4 +48,3 @@ optimizer = tf.keras.optimizers.Adam(learning_rate=config.lr)
 trainer = Trainer(model, family, optimizer, config)
 
 train_losses, val_losses = trainer.run_training(train_batches, val_batches)
-

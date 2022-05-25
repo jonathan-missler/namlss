@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 
 class Trainer:
@@ -21,17 +22,23 @@ class Trainer:
         return loss_val, tape.gradient(loss_val, self.model.trainable_variables)
 
     def train_epoch(self, train_batch):
+        epoch_train_loss = []
         for x, y in train_batch:
             loss_val, grads = self.grad(x, y)
             self.optimizer.apply_gradients(zip(grads, self.model.trainable_variables))
 
-            self.epoch_train_loss_avg.update_state(loss_val)
+            epoch_train_loss.append(loss_val/len(y))
+
+        return np.mean(epoch_train_loss)
 
     def val_epoch(self, val_batch):
+        epoch_val_loss = []
         for x, y in val_batch:
             loss_val = self.loss(x, y, training=False)
 
-            self.epoch_val_loss_avg.update_state(loss_val)
+            epoch_val_loss.append(loss_val/len(y))
+
+        return np.mean(epoch_val_loss)
 
     def run_training(self, train_batch, val_batch):
         train_loss_results = []
@@ -40,17 +47,15 @@ class Trainer:
         num_epochs = self.config.num_epochs
 
         for epoch in range(num_epochs):
-            self.epoch_train_loss_avg = tf.keras.metrics.Mean()
-            self.epoch_val_loss_avg = tf.keras.metrics.Mean()
 
-            self.train_epoch(train_batch)
-            self.val_epoch(val_batch)
+            epoch_train_loss_avg = self.train_epoch(train_batch)
+            epoch_val_loss_avg = self.val_epoch(val_batch)
 
-            train_loss_results.append(self.epoch_train_loss_avg.result())
-            val_loss_results.append(self.epoch_val_loss_avg.result())
+            train_loss_results.append(epoch_train_loss_avg)
+            val_loss_results.append(epoch_val_loss_avg)
 
             print("Epoch {:03d}: Train Loss: {:.3f} Validation Loss: {:.3f}".format(epoch+1,
-                                                                                    self.epoch_train_loss_avg.result(),
-                                                                                    self.epoch_val_loss_avg.result()))
+                                                                                    epoch_train_loss_avg,
+                                                                                    epoch_val_loss_avg))
 
         return train_loss_results, val_loss_results
