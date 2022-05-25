@@ -34,7 +34,7 @@ class Trainer:
     def val_epoch(self, val_batch):
         epoch_val_loss = []
         for x, y in val_batch:
-            loss_val = self.loss(x, y, training=False)
+            loss_val = self.loss(x, y, training=True)
 
             epoch_val_loss.append(loss_val/len(y))
 

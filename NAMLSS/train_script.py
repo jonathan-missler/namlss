@@ -14,7 +14,7 @@ config.activation = "exu"
 # load and prepare data
 features, target, _ = load_dataset("Housing")
 
-split_generator = split_training_dataset(features, target, n_splits=1, stratified=False, random_state=1866)
+split_generator = split_training_dataset(features, target, n_splits=1, stratified=False, random_state=1245)
 
 for i in split_generator:
     (train_features, train_target), (val_features, val_target) = i
@@ -37,8 +37,11 @@ num_inputs = train_features.shape[-1]
 
 
 # build objects for training
-config.num_epochs = 20
+config.num_epochs = 50
 config.lr = 0.001
+config.shallow = False
+config.dropout = 0.1
+config.feature_dropout = 0.1
 
 
 family = Gaussian(two_param=True)

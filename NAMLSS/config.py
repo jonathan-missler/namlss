@@ -13,6 +13,6 @@ def defaults():
         num_basis_functions=1000,
         units_multiplier=2,
         activation="exu",
-        shallow="False"
+        shallow=False
     )
     return config
