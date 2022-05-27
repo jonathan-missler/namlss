@@ -1,21 +1,26 @@
-from neural_additive_models.data_utils import load_dataset, split_training_dataset
 import tensorflow as tf
-import numpy as np
+import tensorflow_probability as tfp
 from NAMLSS.model import NamLSS
 from NAMLSS.trainer import Trainer
-from NAMLSS.families import Gaussian
 from NAMLSS.config import defaults
+from NAMLSS.families import Gaussian
+import numpy as np
+from neural_additive_models.data_utils import split_training_dataset
 import matplotlib.pyplot as plt
 
-# define the config
 config = defaults()
-config.batch_size = 1024
-config.activation = "exu"
+config.batch_size = 1000
 
-# load and prepare data
-features, target, _ = load_dataset("Housing")
+Xdist = tfp.distributions.Normal(loc=0, scale=1)
+x = Xdist.sample((1000, 1))
 
-split_generator = split_training_dataset(features, target, n_splits=1, stratified=False, random_state=1245)
+Ydist = tfp.distributions.Normal(loc=x, scale=x)
+y = Ydist.sample()
+
+data_array = np.array([x.numpy(), y.numpy()])
+data_array = data_array.reshape((1000, 2))
+
+split_generator = split_training_dataset(x.numpy(), y.numpy(), n_splits=1, stratified=False)
 
 for i in split_generator:
     (train_features, train_target), (val_features, val_target) = i
@@ -27,7 +32,6 @@ train_batches = train_data.shuffle(1000).batch(config.batch_size)
 val_batches = val_data.shuffle(1000).batch(config.batch_size)
 
 
-# get num_inputs and num_units for NAM
 num_unique_vals = [
     len(np.unique(train_features[:, i])) for i in range(train_features.shape[1])
 ]
@@ -36,16 +40,11 @@ num_units = [
 ]
 num_inputs = train_features.shape[-1]
 
+config.activation = "relu"
+config.num_epochs = 100
+config.lr = 0.01
 
-# build objects for training
-config.num_epochs = 20
-config.lr = 0.001
-config.shallow = False
-config.dropout = 0.0
-config.feature_dropout = 0.0
-
-
-family = Gaussian(two_param=True)
+family = Gaussian()
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
                dropout=config.dropout, shallow=config.shallow, activation=config.activation)
 optimizer = tf.keras.optimizers.Adam(learning_rate=config.lr)
@@ -53,16 +52,11 @@ trainer = Trainer(model, family, optimizer, config)
 
 train_losses, val_losses = trainer.run_training(train_batches, val_batches)
 
-tensor_feature = tf.convert_to_tensor(train_features[:, 0])
+loc_pred, scale_pred = trainer.model(x, training=False)
+scale_pred = tf.exp(scale_pred)
 
-loc_pred = trainer.model.mod1.calc_outputs(train_features, training=False)
-loc_pred = loc_pred[0]
-scale_pred= tf.exp(trainer.model.mod2.calc_outputs(train_features, training=False))
-scale_pred = scale_pred[0]
-
-plt.scatter(train_features[:, 0], train_target)
-plt.plot(train_features[:, 0], loc_pred)
-plt.plot(train_features[:, 0], loc_pred + 2*scale_pred)
-plt.plot(train_features[:, 0], loc_pred - 2*scale_pred)
+plt.scatter(x.numpy(), y.numpy())
+plt.plot(x.numpy(), loc_pred)
+plt.plot(x.numpy(), loc_pred + 2*scale_pred)
+plt.plot(x.numpy(), loc_pred - 2*scale_pred)
 plt.show()
-

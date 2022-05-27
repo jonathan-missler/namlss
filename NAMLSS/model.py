@@ -1,7 +1,6 @@
 import tensorflow as tf
 from NAMLSS.families import Gaussian
 from neural_additive_models import models
-import numpy as np
 
 
 class NamLSS(tf.keras.Model):
