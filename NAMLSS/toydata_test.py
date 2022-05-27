@@ -12,13 +12,13 @@ config = defaults()
 config.batch_size = 1000
 
 Xdist = tfp.distributions.Normal(loc=0, scale=1)
-x = Xdist.sample((1000, 1))
+x = Xdist.sample((10000, 1))
 
-Ydist = tfp.distributions.Normal(loc=x, scale=x)
+Ydist = tfp.distributions.Normal(loc=3*x, scale=tf.sqrt(tf.abs(x)))
 y = Ydist.sample()
 
 data_array = np.array([x.numpy(), y.numpy()])
-data_array = data_array.reshape((1000, 2))
+data_array = data_array.reshape((10000, 2))
 
 split_generator = split_training_dataset(x.numpy(), y.numpy(), n_splits=1, stratified=False)
 
@@ -41,8 +41,11 @@ num_units = [
 num_inputs = train_features.shape[-1]
 
 config.activation = "relu"
-config.num_epochs = 100
+config.shallow = False
+config.num_epochs = 50
 config.lr = 0.01
+config.dropout = 0.0
+config.feature_dropout = 0.0
 
 family = Gaussian()
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
@@ -55,8 +58,8 @@ train_losses, val_losses = trainer.run_training(train_batches, val_batches)
 loc_pred, scale_pred = trainer.model(x, training=False)
 scale_pred = tf.exp(scale_pred)
 
-plt.scatter(x.numpy(), y.numpy())
-plt.plot(x.numpy(), loc_pred)
-plt.plot(x.numpy(), loc_pred + 2*scale_pred)
-plt.plot(x.numpy(), loc_pred - 2*scale_pred)
+plt.scatter(x.numpy(), y.numpy(), color="b", alpha=0.7)
+plt.scatter(x.numpy(), loc_pred, color="r")
+plt.scatter(x.numpy(), loc_pred + 2*scale_pred)
+plt.scatter(x.numpy(), loc_pred - 2*scale_pred)
 plt.show()
