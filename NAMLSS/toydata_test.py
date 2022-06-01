@@ -14,7 +14,7 @@ config.batch_size = 1000
 Xdist = tfp.distributions.Normal(loc=0, scale=1)
 x = Xdist.sample((10000, 1))
 
-Ydist = tfp.distributions.Normal(loc=3*x, scale=tf.sqrt(tf.abs(x)))
+Ydist = tfp.distributions.Normal(loc=3*x, scale=0.5*tf.sqrt(tf.abs(x)))
 y = Ydist.sample()
 
 data_array = np.array([x.numpy(), y.numpy()])
