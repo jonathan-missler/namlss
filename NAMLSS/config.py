@@ -9,10 +9,14 @@ def defaults():
         dropout=0.1,
         batch_size=512,
         name_scope="model",
-        weight_decay=0.995,
+        decay_rate=0.995,
         num_basis_functions=1000,
         units_multiplier=2,
         activation="exu",
-        shallow=False
+        shallow=False,
+        output_regularization1=0.1,
+        output_regularization2=0.1,
+        l2_regularization1=0.1,
+        l2_regularization2=0.1
     )
     return config

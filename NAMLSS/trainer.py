@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+from neural_additive_models.graph_builder import weight_decay, feature_output_regularization
 
 
 class Trainer:
@@ -13,12 +14,31 @@ class Trainer:
     def loss(self, x, y, training):
         loc, scale = self.model(x, training=training)
         out = self.family.loss(loc, scale, y)
-
         return out
+
+    def penalized_loss(self, x, y, training):
+        loss = self.loss(x, y,training=training)
+        reg_loss = 0.0
+
+        if self.config.output_regularization1 > 0:
+            reg_loss += self.config.output_regularization1 * feature_output_regularization(self.model.mod1, x)
+
+        if self.config.output_regularization2 > 0:
+            reg_loss += self.config.output_regularization2 * feature_output_regularization(self.model.mod2, x)
+
+        if self.config.l2_regularization1 > 0:
+            num_networks1 = len(self.model.mod1.feature_nns)
+            reg_loss += self.config.l2_regularization1 * weight_decay(self.model.mod1, num_networks=num_networks1)
+
+        if self.config.l2_regularization2 > 0:
+            num_networks2 = len(self.model.mod2.feature_nns)
+            reg_loss += self.config.l2_regularization2 * weight_decay(self.model.mod2, num_networks=num_networks2)
+
+        return loss + reg_loss
 
     def grad(self, x, y):
         with tf.GradientTape() as tape:
-            loss_val = self.loss(x, y, training=True)
+            loss_val = self.penalized_loss(x, y, training=True)
         return loss_val, tape.gradient(loss_val, self.model.trainable_variables)
 
     def train_epoch(self, train_batch):
@@ -34,7 +54,7 @@ class Trainer:
     def val_epoch(self, val_batch):
         epoch_val_loss = []
         for x, y in val_batch:
-            loss_val = self.loss(x, y, training=True)
+            loss_val = self.penalized_loss(x, y, training=True)
 
             epoch_val_loss.append(loss_val/len(y))
 
