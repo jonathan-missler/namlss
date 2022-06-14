@@ -1,15 +1,24 @@
+import os
+
 import tensorflow as tf
 import numpy as np
 from neural_additive_models.graph_builder import weight_decay, feature_output_regularization
+from nam.utils.loggers import TensorBoardLogger
 
 
 class Trainer:
 
-    def __init__(self, model, family, optimizer, config):
+    def __init__(self, model, family, optimizer, config, logger=True, checkpoints=True):
         self.model = model
         self.family = family
         self.config = config
         self.optimizer = optimizer
+
+        if logger:
+            self.logger = TensorBoardLogger(self.config)
+
+        if checkpoints:
+            self.checkpointer = Checkpointer(self.model, config)
 
     def loss(self, x, y, training):
         loc, scale = self.model(x, training=training)
@@ -17,7 +26,7 @@ class Trainer:
         return out
 
     def penalized_loss(self, x, y, training):
-        loss = self.loss(x, y,training=training)
+        loss = self.loss(x, y, training=training)
         reg_loss = 0.0
 
         if self.config.output_regularization1 > 0:
@@ -71,6 +80,14 @@ class Trainer:
             epoch_train_loss_avg = self.train_epoch(train_batch)
             epoch_val_loss_avg = self.val_epoch(val_batch)
 
+            if self.logger:
+                self.logger.write({"train_loss_epoch": epoch_train_loss_avg,
+                                   "val_loss_epoch": epoch_val_loss_avg})
+
+            if epoch % self.config.save_frequency == 0:
+                if self.checkpointer:
+                    self.checkpointer.save(epoch)
+
             train_loss_results.append(epoch_train_loss_avg)
             val_loss_results.append(epoch_val_loss_avg)
 
@@ -79,3 +96,23 @@ class Trainer:
                                                                                     epoch_val_loss_avg))
 
         return train_loss_results, val_loss_results
+
+
+class Checkpointer:
+
+    def __init__(self, model, config):
+        self.model = model
+        self.config = config
+
+        self._checkpt_dir = os.path.join(self.config.logdir, "checkpts")
+        os.makedirs(self._checkpt_dir, exist_ok=True)
+
+    def save(self, epoch):
+        checkpt_path = os.path.join(self._checkpt_dir, "{}-{}.pt".format(self.config.name_scope, epoch))
+
+        self.model.save_weights(checkpt_path)
+
+    def load(self, epoch):
+        checkpt_path = os.path.join(self._checkpt_dir, "{}-{}.pt".format(self.config.name_scope, epoch))
+
+        self.model.load_weights(checkpt_path)

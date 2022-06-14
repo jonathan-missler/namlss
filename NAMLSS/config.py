@@ -17,6 +17,9 @@ def defaults():
         output_regularization1=0.1,
         output_regularization2=0.1,
         l2_regularization1=0.1,
-        l2_regularization2=0.1
+        l2_regularization2=0.1,
+        logdir="output",
+        wandb=False,
+        save_frequency=5,
     )
     return config
