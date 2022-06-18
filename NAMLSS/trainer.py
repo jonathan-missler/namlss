@@ -8,7 +8,7 @@ from nam.utils.loggers import TensorBoardLogger
 
 class Trainer:
 
-    def __init__(self, model, family, optimizer, config, logger=True, checkpoints=True):
+    def __init__(self, model, family, optimizer, config, logger=False, checkpoints=False):
         self.model = model
         self.family = family
         self.config = config
@@ -16,9 +16,18 @@ class Trainer:
 
         if logger:
             self.logger = TensorBoardLogger(self.config)
+        else:
+            self.logger = None
 
         if checkpoints:
             self.checkpointer = Checkpointer(self.model, config)
+        else:
+            self.checkpointer = None
+
+        if self.config.early_stopping_patience > 0:
+            self.early_stopper = EarlyStopper(self.model, self.config)
+        else:
+            self.early_stopper = None
 
     def loss(self, x, y, training):
         loc, scale = self.model(x, training=training)
@@ -88,6 +97,13 @@ class Trainer:
                 if self.checkpointer:
                     self.checkpointer.save(epoch)
 
+            if self.early_stopper:
+                self.early_stopper.update(epoch_val_loss_avg)
+
+                if self.early_stopper.early_stop:
+                    self.checkpointer.load(self.early_stopper.best_epoch)
+                    break
+
             train_loss_results.append(epoch_train_loss_avg)
             val_loss_results.append(epoch_val_loss_avg)
 
@@ -101,18 +117,52 @@ class Trainer:
 class Checkpointer:
 
     def __init__(self, model, config):
-        self.model = model
-        self.config = config
+        self._model = model
+        self._config = config
 
-        self._checkpt_dir = os.path.join(self.config.logdir, "checkpts")
+        self._checkpt_dir = os.path.join(self._config.logdir, "checkpts")
         os.makedirs(self._checkpt_dir, exist_ok=True)
 
     def save(self, epoch):
-        checkpt_path = os.path.join(self._checkpt_dir, "{}-{}.pt".format(self.config.name_scope, epoch))
+        checkpt_path = os.path.join(self._checkpt_dir, "{}-{}".format(self._config.name_scope, epoch))
 
-        self.model.save_weights(checkpt_path)
+        self._model.save_weights(checkpt_path)
 
     def load(self, epoch):
-        checkpt_path = os.path.join(self._checkpt_dir, "{}-{}.pt".format(self.config.name_scope, epoch))
+        checkpt_path = os.path.join(self._checkpt_dir, "{}-{}".format(self._config.name_scope, epoch))
 
-        self.model.load_weights(checkpt_path)
+        self._model.load_weights(checkpt_path)
+
+
+class EarlyStopper:
+
+    def __init__(self, model, config):
+        self.config = config
+        self.model = model
+        self.checkpointer = Checkpointer(model, self.config)
+
+        self._early_stop = False
+        self.epochs = 0
+        self.best_epoch = 0
+        self.counter = 0
+        self.score = None
+        self.min = float("inf")
+
+    @property
+    def early_stop(self):
+
+        return self._early_stop
+
+    def update(self, value):
+        self.epochs += 1
+
+        if value < self.min:
+          self.min = value
+          self.counter = 0
+          self.score = value
+          self.best_epoch = self.epochs
+          self.checkpointer.save(self.best_epoch)
+        else:
+          self.counter += 1
+          if self.counter >= self.config.early_stopping_patience:
+            self._early_stop = True

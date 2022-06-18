@@ -4,7 +4,7 @@ from nam.config.base import Config
 def defaults():
     config = Config(
         num_epochs=100,
-        lr=0.01,
+        lr=0.001,
         feature_dropout=0.1,
         dropout=0.1,
         batch_size=512,
@@ -21,5 +21,6 @@ def defaults():
         logdir="output",
         wandb=False,
         save_frequency=5,
+        early_stopping_patience=10,
     )
     return config
