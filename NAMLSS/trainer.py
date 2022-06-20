@@ -137,9 +137,9 @@ class Checkpointer:
 class EarlyStopper:
 
     def __init__(self, model, config):
-        self.config = config
-        self.model = model
-        self.checkpointer = Checkpointer(model, self.config)
+        self._config = config
+        self._model = model
+        self._checkpointer = Checkpointer(self._model, self._config)
 
         self._early_stop = False
         self.epochs = 0
@@ -157,12 +157,12 @@ class EarlyStopper:
         self.epochs += 1
 
         if value < self.min:
-          self.min = value
-          self.counter = 0
-          self.score = value
-          self.best_epoch = self.epochs
-          self.checkpointer.save(self.best_epoch)
+            self.min = value
+            self.counter = 0
+            self.score = value
+            self.best_epoch = self.epochs
+            self._checkpointer.save(self.best_epoch)
         else:
-          self.counter += 1
-          if self.counter >= self.config.early_stopping_patience:
-            self._early_stop = True
+            self.counter += 1
+            if self.counter >= self._config.early_stopping_patience:
+                self._early_stop = True

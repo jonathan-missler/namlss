@@ -20,7 +20,10 @@ class Gaussian:
     def log_likelihood(self, loc, scale, val):
 
         if self._two_param:
-            dist = tfp.distributions.Normal(loc=loc, scale=tf.exp(scale))
+            dist = tfp.distributions.Normal(loc=loc, scale=tf.sqrt(tf.exp(scale)))
+            out = tf.reduce_sum(dist.log_prob(value=val))
+        else:
+            dist = tfp.distributions.Normal(loc=loc, scale=tfp.stats.stddev(val))
             out = tf.reduce_sum(dist.log_prob(value=val))
 
         return out
