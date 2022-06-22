@@ -84,7 +84,7 @@ class Trainer:
 
         num_epochs = self.config.num_epochs
 
-        for epoch in range(num_epochs):
+        for epoch in range(1, num_epochs+1):
 
             epoch_train_loss_avg = self.train_epoch(train_batch)
             epoch_val_loss_avg = self.val_epoch(val_batch)
@@ -107,7 +107,7 @@ class Trainer:
             train_loss_results.append(epoch_train_loss_avg)
             val_loss_results.append(epoch_val_loss_avg)
 
-            print("Epoch {:03d}: Train Loss: {:.3f} Validation Loss: {:.3f}".format(epoch+1,
+            print("Epoch {:03d}: Train Loss: {:.3f} Validation Loss: {:.3f}".format(epoch,
                                                                                     epoch_train_loss_avg,
                                                                                     epoch_val_loss_avg))
 

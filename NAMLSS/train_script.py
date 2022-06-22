@@ -54,13 +54,12 @@ trainer = Trainer(model, family, optimizer, config)
 train_losses, val_losses = trainer.run_training(train_batches, val_batches)
 
 loc_pred = trainer.model.mod1.calc_outputs(train_features, training=False)
-loc_pred = loc_pred[6]
+loc_pred = loc_pred[7]
 scale_pred = trainer.model.mod2.calc_outputs(train_features, training=False)
-scale_pred = tf.exp(scale_pred[6])
+scale_pred = tf.exp(scale_pred[7])
 
-plt.scatter(train_features[:, 6], train_target, alpha=0.7)
-plt.scatter(train_features[:, 6], loc_pred, color="r")
-plt.scatter(train_features[:, 6], loc_pred + 2*scale_pred, color="m")
-plt.scatter(train_features[:, 6], loc_pred - 2*scale_pred, color="y")
+plt.scatter(train_features[:, 7], train_target, alpha=0.7)
+plt.scatter(train_features[:, 7], loc_pred, color="r")
+plt.scatter(train_features[:, 7], loc_pred + 2*scale_pred, color="m")
+plt.scatter(train_features[:, 7], loc_pred - 2*scale_pred, color="y")
 plt.show()
-
