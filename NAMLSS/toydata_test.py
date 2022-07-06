@@ -47,6 +47,11 @@ config.lr = 0.01
 config.dropout = 0.0
 config.feature_dropout = 0.0
 
+config.output_regularization1 = 0.0
+config.output_regularization2 = 0.0
+config.l2_regularization1 = 0.0
+config.l2_regularization2 = 0.0
+
 family = Gaussian()
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
                dropout=config.dropout, shallow=config.shallow, activation=config.activation)

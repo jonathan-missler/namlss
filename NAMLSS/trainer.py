@@ -101,7 +101,7 @@ class Trainer:
                 self.early_stopper.update(epoch_val_loss_avg)
 
                 if self.early_stopper.early_stop:
-                    self.checkpointer.load(self.early_stopper.best_epoch)
+                    self.early_stopper._checkpointer.load(self.early_stopper.best_epoch)
                     break
 
             train_loss_results.append(epoch_train_loss_avg)
