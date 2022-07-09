@@ -40,10 +40,10 @@ num_units = [
 ]
 num_inputs = train_features.shape[-1]
 
-config.activation = "relu"
+config.activation = "exu"
 config.shallow = False
-config.num_epochs = 50
-config.lr = 0.01
+config.num_epochs = 500
+config.lr = 0.0001
 config.dropout = 0.0
 config.feature_dropout = 0.0
 
