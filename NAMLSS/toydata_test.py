@@ -9,13 +9,15 @@ from neural_additive_models.data_utils import split_training_dataset
 import matplotlib.pyplot as plt
 
 config = defaults()
-config.batch_size = 1000
+config.batch_size = 300
 
-Xdist = tfp.distributions.Normal(loc=0, scale=1)
+Xdist = tfp.distributions.Normal(loc=0, scale=3)
 x = Xdist.sample((10000, 1))
 
-Ydist = tfp.distributions.Normal(loc=3*x, scale=0.5*tf.sqrt(tf.abs(x)))
+
+Ydist = tfp.distributions.Normal(loc=x, scale=0.5)
 y = Ydist.sample()
+
 
 data_array = np.array([x.numpy(), y.numpy()])
 data_array = data_array.reshape((10000, 2))
@@ -24,6 +26,7 @@ split_generator = split_training_dataset(x.numpy(), y.numpy(), n_splits=1, strat
 
 for i in split_generator:
     (train_features, train_target), (val_features, val_target) = i
+
 
 train_data = tf.data.Dataset.from_tensor_slices((train_features, train_target))
 val_data = tf.data.Dataset.from_tensor_slices((val_features, val_target))
@@ -42,8 +45,8 @@ num_inputs = train_features.shape[-1]
 
 config.activation = "exu"
 config.shallow = False
-config.num_epochs = 500
-config.lr = 0.0001
+config.num_epochs = 50
+config.lr = 0.001
 config.dropout = 0.0
 config.feature_dropout = 0.0
 
@@ -51,6 +54,7 @@ config.output_regularization1 = 0.0
 config.output_regularization2 = 0.0
 config.l2_regularization1 = 0.0
 config.l2_regularization2 = 0.0
+config.early_stopping_patience = 0
 
 family = Gaussian()
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 # define the config
 config = defaults()
-config.batch_size = 1024
+config.batch_size = 5024
 config.activation = "exu"
 
 # load and prepare data
