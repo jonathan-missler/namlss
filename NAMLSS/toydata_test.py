@@ -14,15 +14,16 @@ config.batch_size = 300
 Xdist = tfp.distributions.Normal(loc=0, scale=3)
 x = Xdist.sample((10000, 1))
 
+X2dist = tfp.distributions.Normal(loc=4, scale=2)
+x2 = Xdist.sample((10000, 1))
 
-Ydist = tfp.distributions.Normal(loc=x, scale=0.5)
+Ydist = tfp.distributions.Normal(loc=x+x2, scale=1)
 y = Ydist.sample()
 
 
-data_array = np.array([x.numpy(), y.numpy()])
-data_array = data_array.reshape((10000, 2))
+data_array = np.hstack((y.numpy(), x.numpy(), x2.numpy()))
 
-split_generator = split_training_dataset(x.numpy(), y.numpy(), n_splits=1, stratified=False)
+split_generator = split_training_dataset(data_array[:, 1:], data_array[:, 0], n_splits=1, stratified=False)
 
 for i in split_generator:
     (train_features, train_target), (val_features, val_target) = i
@@ -45,7 +46,7 @@ num_inputs = train_features.shape[-1]
 
 config.activation = "exu"
 config.shallow = False
-config.num_epochs = 50
+config.num_epochs = 70
 config.lr = 0.001
 config.dropout = 0.0
 config.feature_dropout = 0.0
@@ -64,11 +65,13 @@ trainer = Trainer(model, family, optimizer, config)
 
 train_losses, val_losses = trainer.run_training(train_batches, val_batches)
 
-loc_pred, scale_pred = trainer.model(x, training=False)
-scale_pred = tf.exp(scale_pred)
+loc_pred = trainer.model.mod1.calc_outputs(train_features, training=False)
+loc_pred = loc_pred[0]
+scale_pred = trainer.model.mod2.calc_outputs(train_features, training=False)
+scale_pred = tf.exp(scale_pred[0])
 
 plt.scatter(x.numpy(), y.numpy(), color="b", alpha=0.7)
-plt.scatter(x.numpy(), loc_pred, color="r")
-plt.scatter(x.numpy(), loc_pred + 2*scale_pred)
-plt.scatter(x.numpy(), loc_pred - 2*scale_pred)
+plt.scatter(train_features[:, 0], loc_pred, color="r")
+plt.scatter(train_features[:, 0], loc_pred + 2*scale_pred)
+plt.scatter(train_features[:, 0], loc_pred - 2*scale_pred)
 plt.show()
