@@ -3,7 +3,7 @@ import tensorflow_probability as tfp
 from NAMLSS.model import NamLSS
 from NAMLSS.trainer import Trainer
 from NAMLSS.config import defaults
-from NAMLSS.families import Gaussian
+from NAMLSS.families import Gaussian, Gamma
 import numpy as np
 from neural_additive_models.data_utils import split_training_dataset
 import matplotlib.pyplot as plt
@@ -44,10 +44,10 @@ num_units = [
 ]
 num_inputs = train_features.shape[-1]
 
-config.activation = "exu"
-config.shallow = False
-config.num_epochs = 70
-config.lr = 0.001
+config.activation = "relu"
+config.shallow = True
+config.num_epochs = 100
+config.lr = 0.01
 config.dropout = 0.0
 config.feature_dropout = 0.0
 
@@ -55,7 +55,7 @@ config.output_regularization1 = 0.0
 config.output_regularization2 = 0.0
 config.l2_regularization1 = 0.0
 config.l2_regularization2 = 0.0
-config.early_stopping_patience = 0
+config.early_stopping_patience = 15
 
 family = Gaussian()
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
@@ -70,7 +70,7 @@ loc_pred = loc_pred[0]
 scale_pred = trainer.model.mod2.calc_outputs(train_features, training=False)
 scale_pred = tf.exp(scale_pred[0])
 
-plt.scatter(x.numpy(), y.numpy(), color="b", alpha=0.7)
+plt.scatter(train_features[:, 0], train_target, color="b", alpha=0.7)
 plt.scatter(train_features[:, 0], loc_pred, color="r")
 plt.scatter(train_features[:, 0], loc_pred + 2*scale_pred)
 plt.scatter(train_features[:, 0], loc_pred - 2*scale_pred)

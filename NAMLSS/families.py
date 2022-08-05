@@ -27,3 +27,26 @@ class Gaussian:
             out = tf.reduce_sum(dist.log_prob(value=val))
 
         return out
+
+
+class Gamma:
+
+    def __init__(self, two_param=True, log_rate=False):
+        self._two_param = two_param
+        self._log_rate = log_rate
+
+    def loss(self, conc, rate, val):
+
+        if self._two_param:
+            if self._log_rate:
+                dist = tfp.distributions.Gamma(concentration=tf.exp(conc), log_rate=rate)
+            else:
+                dist = tfp.distributions.Gamma(concentration=tf.exp(conc), rate=tf.exp(rate))
+        else:
+            dist = tfp.distributions.Gamma(concentration=tf.exp(conc))
+
+        out = -tf.reduce_sum(dist.log_prob(value=val))
+        return out
+
+    def log_likelihood(self, conc, rate, val):
+        return -self.loss(conc, rate, val)
