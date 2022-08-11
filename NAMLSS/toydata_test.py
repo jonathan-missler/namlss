@@ -3,7 +3,7 @@ import tensorflow_probability as tfp
 from NAMLSS.model import NamLSS
 from NAMLSS.trainer import Trainer
 from NAMLSS.config import defaults
-from NAMLSS.families import Gaussian, Gamma
+from NAMLSS.families import Gaussian, Gamma, InvGauss
 import numpy as np
 from neural_additive_models.data_utils import split_training_dataset
 import matplotlib.pyplot as plt
