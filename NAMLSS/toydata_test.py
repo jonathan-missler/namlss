@@ -11,13 +11,13 @@ import matplotlib.pyplot as plt
 config = defaults()
 config.batch_size = 300
 
-Xdist = tfp.distributions.Normal(loc=0, scale=3)
+Xdist = tfp.distributions.Normal(loc=0, scale=1)
 x = Xdist.sample((10000, 1))
 
 X2dist = tfp.distributions.Normal(loc=4, scale=2)
-x2 = Xdist.sample((10000, 1))
+x2 = X2dist.sample((10000, 1))
 
-Ydist = tfp.distributions.Normal(loc=x+x2, scale=1)
+Ydist = tfp.distributions.Normal(loc=3*x, scale=0.5+tf.sqrt(tf.abs(x)))
 y = Ydist.sample()
 
 
