@@ -44,10 +44,10 @@ num_units = [
 ]
 num_inputs = train_features.shape[-1]
 
-config.activation = "relu"
+config.activation = "exu"
 config.shallow = True
 config.num_epochs = 100
-config.lr = 0.01
+config.lr = 0.0001
 config.dropout = 0.0
 config.feature_dropout = 0.0
 
@@ -57,7 +57,7 @@ config.l2_regularization1 = 0.0
 config.l2_regularization2 = 0.0
 config.early_stopping_patience = 15
 
-family = Gaussian()
+family = InvGauss()
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
                dropout=config.dropout, shallow=config.shallow, activation=config.activation)
 optimizer = tf.keras.optimizers.Adam(learning_rate=config.lr)

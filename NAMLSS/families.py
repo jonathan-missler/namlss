@@ -54,7 +54,7 @@ class InvGauss:
         pass
 
     def loss(self, loc, shape, val):
-        dist = tfp.distributions.InverseGaussian(loc=-(1/tf.sqrt(tf.math.softplus(loc))), concentration=tf.exp(shape))
+        dist = tfp.distributions.InverseGaussian(loc=(1/tf.sqrt(tf.math.softplus(loc))), concentration=tf.exp(shape))
         out = -tf.reduce_sum(dist.log_prob(value=val))
         return out
 
