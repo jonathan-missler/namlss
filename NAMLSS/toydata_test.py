@@ -11,13 +11,13 @@ import matplotlib.pyplot as plt
 config = defaults()
 config.batch_size = 300
 
-Xdist = tfp.distributions.Normal(loc=0, scale=1)
+Xdist = tfp.distributions.Normal(loc=0, scale=0.3)
 x = Xdist.sample((10000, 1))
 
 X2dist = tfp.distributions.Normal(loc=4, scale=2)
 x2 = X2dist.sample((10000, 1))
 
-Ydist = tfp.distributions.Normal(loc=3*x, scale=0.5+tf.sqrt(tf.abs(x)))
+Ydist = tfp.distributions.Normal(loc=3*x, scale=tf.sqrt(tf.abs(x)))
 y = Ydist.sample()
 
 
@@ -44,20 +44,20 @@ num_units = [
 ]
 num_inputs = train_features.shape[-1]
 
-config.activation = "exu"
+config.activation = "relu"
 config.shallow = True
-config.num_epochs = 100
-config.lr = 0.0001
+config.num_epochs = 500
+config.lr = 0.01
 config.dropout = 0.0
 config.feature_dropout = 0.0
 
 config.output_regularization1 = 0.0
-config.output_regularization2 = 0.0
+config.output_regularization2 = 0.01
 config.l2_regularization1 = 0.0
-config.l2_regularization2 = 0.0
+config.l2_regularization2 = 0.01
 config.early_stopping_patience = 15
 
-family = InvGauss()
+family = Gaussian()
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
                dropout=config.dropout, shallow=config.shallow, activation=config.activation)
 optimizer = tf.keras.optimizers.Adam(learning_rate=config.lr)
