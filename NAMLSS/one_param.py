@@ -52,13 +52,13 @@ config.dropout = 0.0
 config.feature_dropout = 0.0
 
 config.output_regularization1 = 0.01
-config.output_regularization2 = 0.1
+config.output_regularization2 = 0.0
 config.l2_regularization1 = 0.01
-config.l2_regularization2 = 0.1
+config.l2_regularization2 = 0.0
 config.early_stopping_patience = 15
 
-family = Gaussian()
-model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
+family = Gaussian(two_param=False)
+model = NamLSS(num_inputs=num_inputs, num_units=num_units, feature_dropout=config.feature_dropout,
                dropout=config.dropout, shallow=config.shallow, activation=config.activation)
 optimizer = tf.keras.optimizers.Adam(learning_rate=config.lr)
 trainer = Trainer(model, family, optimizer, config)
@@ -67,12 +67,9 @@ train_losses, val_losses = trainer.run_training(train_batches, val_batches)
 
 loc_pred = trainer.model.mod1.calc_outputs(train_features, training=False)
 loc_pred = loc_pred[0]
-scale_pred = trainer.model.mod2.calc_outputs(train_features, training=False)
-scale_pred = tf.exp(scale_pred[0])
+
 
 plt.scatter(train_features[:, 0], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
-plt.scatter(train_features[:, 0], loc_pred + 2*scale_pred, color="green", alpha=0.7, s=1.5)
-plt.scatter(train_features[:, 0], loc_pred - 2*scale_pred, color="green", alpha=0.7, s=1.5)
 plt.scatter(train_features[:, 0], loc_pred, color="crimson", s=3.5)
 params = {'mathtext.default': 'regular' }
 plt.rcParams.update(params)
