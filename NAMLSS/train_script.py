@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # define the config
 config = defaults()
 config.batch_size = 5024
-config.activation = "exu"
+config.activation = "relu"
 
 # load and prepare data
 features, target, _ = load_dataset("Housing")
@@ -38,12 +38,17 @@ num_inputs = train_features.shape[-1]
 
 
 # build objects for training
-config.num_epochs = 20
+config.num_epochs = 300
 config.lr = 0.001
-config.shallow = False
-config.dropout = 0.0
-config.feature_dropout = 0.0
+config.shallow = False  #false
 
+config.dropout = 0.1
+config.feature_dropout = 0.1
+config.early_stopping_patience = 10
+config.output_regularization1 = 0.1 #0.1
+config.output_regularization2 = 0.01 #0.01
+config.l2_regularization1 = 0.1 #1.1
+config.l2_regularization2 = 0.01 #0.01
 
 family = Gaussian(two_param=True)
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
@@ -58,8 +63,13 @@ loc_pred = loc_pred[7]
 scale_pred = trainer.model.mod2.calc_outputs(train_features, training=False)
 scale_pred = tf.exp(scale_pred[7])
 
-plt.scatter(train_features[:, 7], train_target, alpha=0.7)
-plt.scatter(train_features[:, 7], loc_pred, color="r")
-plt.scatter(train_features[:, 7], loc_pred + 2*scale_pred, color="m")
-plt.scatter(train_features[:, 7], loc_pred - 2*scale_pred, color="y")
+plt.scatter(train_features[:, 7], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
+plt.scatter(train_features[:, 7], loc_pred + 2*scale_pred, color="green", alpha=0.7, s=1.5)
+plt.scatter(train_features[:, 7], loc_pred - 2*scale_pred, color="green", alpha=0.7, s=1.5)
+plt.scatter(train_features[:, 7], loc_pred, color="crimson", s=3.5)
+params = {'mathtext.default': 'regular' }
+plt.rcParams.update(params)
+plt.xlabel("$Longitude$")
+plt.ylabel("$log(Price)$")
+plt.tight_layout()
 plt.show()

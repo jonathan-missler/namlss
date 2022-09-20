@@ -44,17 +44,17 @@ num_units = [
 ]
 num_inputs = train_features.shape[-1]
 
-config.activation = "relu"
+config.activation = "exu"
 config.shallow = True
 config.num_epochs = 500
 config.lr = 0.01
 config.dropout = 0.0
 config.feature_dropout = 0.0
 
-config.output_regularization1 = 0.01
-config.output_regularization2 = 0.1
-config.l2_regularization1 = 0.01
-config.l2_regularization2 = 0.1
+config.output_regularization1 = 0.0
+config.output_regularization2 = 0.0
+config.l2_regularization1 = 0.0
+config.l2_regularization2 = 0.0
 config.early_stopping_patience = 15
 
 family = Gaussian()
@@ -76,7 +76,7 @@ plt.scatter(train_features[:, 0], loc_pred - 2*scale_pred, color="green", alpha=
 plt.scatter(train_features[:, 0], loc_pred, color="crimson", s=3.5)
 params = {'mathtext.default': 'regular' }
 plt.rcParams.update(params)
-plt.xlabel("$x_1$")
+plt.xlabel("$x$")
 plt.ylabel("$y$")
 plt.tight_layout()
 plt.show()
