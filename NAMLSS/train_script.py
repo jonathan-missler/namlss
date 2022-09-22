@@ -13,7 +13,7 @@ config.batch_size = 5024
 config.activation = "relu"
 
 # load and prepare data
-features, target, _ = load_dataset("Housing")
+features, target, colnames = load_dataset("Housing")
 
 split_generator = split_training_dataset(features, target, n_splits=1, stratified=False, random_state=1245)
 
@@ -59,17 +59,19 @@ trainer = Trainer(model, family, optimizer, config)
 train_losses, val_losses = trainer.run_training(train_batches, val_batches)
 
 loc_pred = trainer.model.mod1.calc_outputs(train_features, training=False)
-loc_pred = loc_pred[7]
 scale_pred = trainer.model.mod2.calc_outputs(train_features, training=False)
-scale_pred = tf.exp(scale_pred[7])
+scale_pred = tf.exp(scale_pred)
 
-plt.scatter(train_features[:, 7], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
-plt.scatter(train_features[:, 7], loc_pred + 2*scale_pred, color="green", alpha=0.7, s=1.5)
-plt.scatter(train_features[:, 7], loc_pred - 2*scale_pred, color="green", alpha=0.7, s=1.5)
-plt.scatter(train_features[:, 7], loc_pred, color="crimson", s=3.5)
-params = {'mathtext.default': 'regular' }
-plt.rcParams.update(params)
-plt.xlabel("$Longitude$")
-plt.ylabel("$log(Price)$")
-plt.tight_layout()
+fig, ax = plt.subplots(nrows=2, ncols=4)
+i = 0
+for row in ax:
+    for col in row:
+        col.scatter(train_features[:, i], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
+        col.scatter(train_features[:, i], loc_pred[i] + 2*scale_pred[i], color="green", alpha=0.7, s=1.5)
+        col.scatter(train_features[:, i], loc_pred[i] - 2*scale_pred[i], color="green", alpha=0.7, s=1.5)
+        col.scatter(train_features[:, i], loc_pred[i], color="crimson", s=3.5)
+        col.set_xlabel(colnames[i])
+        col.set_ylabel("log(Price)")
+        i += 1
+plt.tight_layout(pad=0.4, w_pad=0.3)
 plt.show()
