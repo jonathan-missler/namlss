@@ -71,7 +71,17 @@ for row in ax:
         col.scatter(train_features[:, i], loc_pred[i] - 2*scale_pred[i], color="green", alpha=0.7, s=1.5)
         col.scatter(train_features[:, i], loc_pred[i], color="crimson", s=3.5)
         col.set_xlabel(colnames[i])
-        col.set_ylabel("log(Price)")
+        col.set_ylabel("Price")
         i += 1
 plt.tight_layout(pad=0.4, w_pad=0.3)
 plt.show()
+
+'''
+plt.scatter(train_features[:, 7], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
+plt.scatter(train_features[:, 7], loc_pred[7] + 2*scale_pred[7], color="green", alpha=0.7, s=1.5)
+plt.scatter(train_features[:, 7], loc_pred[7] - 2*scale_pred[7], color="green", alpha=0.7, s=1.5)
+plt.scatter(train_features[:, 7], loc_pred[7], color="crimson", s=3.5)
+plt.xlabel(colnames[7])
+plt.ylabel("Price")
+plt.show()
+'''
