@@ -33,7 +33,7 @@ class Gamma:
 
     def __init__(self, log_rate=False):
         self._log_rate = log_rate
-        self.two_param = True
+        self._two_param = True
 
     def loss(self, conc, rate, val):
 
@@ -52,7 +52,7 @@ class Gamma:
 class InvGauss:
 
     def __init__(self):
-        self.two_param = True
+        self._two_param = True
 
     def loss(self, loc, shape, val):
         dist = tfp.distributions.InverseGaussian(loc=(1/tf.sqrt(tf.math.softplus(loc))), concentration=tf.exp(shape))
