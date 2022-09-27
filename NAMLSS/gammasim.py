@@ -47,7 +47,7 @@ num_inputs = train_features.shape[-1]
 config.activation = "relu"
 config.shallow = True
 config.num_epochs = 500
-config.lr = 0.001
+config.lr = 0.01
 config.dropout = 0.0
 config.feature_dropout = 0.0
 
