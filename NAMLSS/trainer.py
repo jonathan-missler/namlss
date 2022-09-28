@@ -41,14 +41,14 @@ class Trainer:
         if self.config.output_regularization1 > 0:
             reg_loss += self.config.output_regularization1 * feature_output_regularization(self.model.mod1, x)
 
-        if self.config.output_regularization2 > 0:
+        if self.config.output_regularization2 > 0 and self.family._twoparam:
             reg_loss += self.config.output_regularization2 * feature_output_regularization(self.model.mod2, x)
 
         if self.config.l2_regularization1 > 0:
             num_networks1 = len(self.model.mod1.feature_nns)
             reg_loss += self.config.l2_regularization1 * weight_decay(self.model.mod1, num_networks=num_networks1)
 
-        if self.config.l2_regularization2 > 0:
+        if self.config.l2_regularization2 > 0 and self.family._twoparam:
             num_networks2 = len(self.model.mod2.feature_nns)
             reg_loss += self.config.l2_regularization2 * weight_decay(self.model.mod2, num_networks=num_networks2)
 
