@@ -74,10 +74,10 @@ fig, ax = plt.subplots(nrows=2, ncols=4)
 i = 0
 for row in ax:
     for col in row:
-        col.scatter(train_features[:, i], test_target, color="cornflowerblue", alpha=0.5, s=0.5)
-        col.scatter(train_features[:, i], loc_pred[i] + 2*scale_pred[i], color="green", alpha=0.7, s=1.5)
-        col.scatter(train_features[:, i], loc_pred[i] - 2*scale_pred[i], color="green", alpha=0.7, s=1.5)
-        col.scatter(train_features[:, i], loc_pred[i], color="crimson", s=3.5)
+        col.scatter(test_features[:, i], test_target, color="cornflowerblue", alpha=0.5, s=0.5)
+        col.scatter(test_features[:, i], loc_pred[i] + 2*scale_pred[i], color="green", alpha=0.7, s=1.5)
+        col.scatter(test_features[:, i], loc_pred[i] - 2*scale_pred[i], color="green", alpha=0.7, s=1.5)
+        col.scatter(test_features[:, i], loc_pred[i], color="crimson", s=3.5)
         col.set_xlabel(colnames[i])
         col.set_ylabel("Price")
         i += 1
