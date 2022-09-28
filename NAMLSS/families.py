@@ -13,8 +13,7 @@ class Gaussian:
             dist = tfp.distributions.Normal(loc=loc, scale=tf.sqrt(tf.exp(scale)))
             out = -tf.reduce_sum(dist.log_prob(value=val))
         else:
-            mse = tf.keras.losses.MeanSquaredError()
-            out = mse(val, loc)
+            tf.keras.metrics.mean_squared_error(val, loc)
         return out
 
     def log_likelihood(self, loc, scale, val):
