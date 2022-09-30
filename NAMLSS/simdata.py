@@ -12,7 +12,7 @@ def feature_sim(seed=1866):
     x2 = dist2.sample((10000, 1), seed=seed+1)
 
     dist3 = tfp.distributions.Uniform(1, 2)
-    x3 = dist3.sample((10000,1), seed=seed+2)
+    x3 = dist3.sample((10000, 1), seed=seed+2)
 
     return x1, x2, x3
 
