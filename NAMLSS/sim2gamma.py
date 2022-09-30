@@ -3,8 +3,8 @@ import pandas as pd
 from NAMLSS.model import NamLSS
 from NAMLSS.trainer import Trainer
 from NAMLSS.config import defaults
-from NAMLSS.families import Gaussian
-from NAMLSS.simdata import sim_gauss
+from NAMLSS.families import Gamma
+from NAMLSS.simdata import sim_gamma
 import numpy as np
 from neural_additive_models.data_utils import split_training_dataset
 import matplotlib.pyplot as plt
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 config = defaults()
 config.batch_size = 300
 
-y, x1, x2, x3 = sim_gauss()
+y, x1, x2, x3 = sim_gamma()
 
 data_array = np.hstack((y.numpy(), x1.numpy(), x2.numpy(), x3.numpy()))
 
@@ -40,16 +40,16 @@ config.activation = "relu"
 config.shallow = False
 config.num_epochs = 500
 config.lr = 0.01
-config.dropout = 0.05
-config.feature_dropout = 0.1
+config.dropout = 0.1
+config.feature_dropout = 0.0
 
-config.output_regularization1 = 0.01
-config.output_regularization2 = 0.005
-config.l2_regularization1 = 0.15
-config.l2_regularization2 = 0.01
+config.output_regularization1 = 0.0
+config.output_regularization2 = 0.01
+config.l2_regularization1 = 0.1
+config.l2_regularization2 = 0.1
 config.early_stopping_patience = 10
 
-family = Gaussian()
+family = Gamma()
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
                dropout=config.dropout, shallow=config.shallow, activation=config.activation)
 optimizer = tf.keras.optimizers.Adam(learning_rate=config.lr)
@@ -57,9 +57,10 @@ trainer = Trainer(model, family, optimizer, config)
 
 train_losses, val_losses = trainer.run_training(train_batches, val_batches)
 
-loc_pred = trainer.model.mod1.calc_outputs(train_features, training=False)
-scale_pred = trainer.model.mod2.calc_outputs(train_features, training=False)
-scale_pred = tf.exp(scale_pred)
+shape_pred = trainer.model.mod1.calc_outputs(train_features, training=False)
+shape_pred = tf.exp(shape_pred)
+rate_pred = trainer.model.mod2.calc_outputs(train_features, training=False)
+rate_pred = tf.exp(rate_pred)
 
 features = pd.DataFrame({"x1": [x1],
                          "x2": [x2],
@@ -69,23 +70,20 @@ colnames = features.columns.values.tolist()
 fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3)
 
 ax1.scatter(train_features[:, 0], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
-ax1.scatter(train_features[:, 0], loc_pred[0] + 2*scale_pred[0], color="green", alpha=0.7, s=1.5)
-ax1.scatter(train_features[:, 0], loc_pred[0] - 2*scale_pred[0], color="green", alpha=0.7, s=1.5)
-ax1.scatter(train_features[:, 0], loc_pred[0], color="crimson", s=3.5)
+ax1.scatter(train_features[:, 0], rate_pred[0], color="green", alpha=0.7, s=1.5)
+ax1.scatter(train_features[:, 0], shape_pred[0], color="crimson", s=3.5)
 ax1.set_xlabel(colnames[0])
 ax1.set_ylabel("y")
 
 ax2.scatter(train_features[:, 1], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
-ax2.scatter(train_features[:, 1], loc_pred[1] + 2*scale_pred[1], color="green", alpha=0.7, s=1.5)
-ax2.scatter(train_features[:, 1], loc_pred[1] - 2*scale_pred[1], color="green", alpha=0.7, s=1.5)
-ax2.scatter(train_features[:, 1], loc_pred[1], color="crimson", s=3.5)
+ax2.scatter(train_features[:, 1], rate_pred[1], color="green", alpha=0.7, s=1.5)
+ax2.scatter(train_features[:, 1], shape_pred[1], color="crimson", s=3.5)
 ax2.set_xlabel(colnames[1])
 ax2.set_ylabel("y")
 
 ax3.scatter(train_features[:, 2], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
-ax3.scatter(train_features[:, 2], loc_pred[2] + 2*scale_pred[2], color="green", alpha=0.7, s=1.5)
-ax3.scatter(train_features[:, 2], loc_pred[2] - 2*scale_pred[2], color="green", alpha=0.7, s=1.5)
-ax3.scatter(train_features[:, 2], loc_pred[2], color="crimson", s=3.5)
+ax3.scatter(train_features[:, 2], rate_pred[2], color="green", alpha=0.7, s=1.5)
+ax3.scatter(train_features[:, 2], shape_pred[2], color="crimson", s=3.5)
 ax3.set_xlabel(colnames[2])
 ax3.set_ylabel("y")
 
