@@ -39,15 +39,15 @@ num_inputs = train_features.shape[-1]
 config.activation = "relu"
 config.shallow = False
 config.num_epochs = 500
-config.lr = 0.01
+config.lr = 0.001
 config.dropout = 0.1
-config.feature_dropout = 0.0
+config.feature_dropout = 0.1
 
 config.output_regularization1 = 0.0
-config.output_regularization2 = 0.01
-config.l2_regularization1 = 0.1
+config.output_regularization2 = 0.1
+config.l2_regularization1 = 0.0
 config.l2_regularization2 = 0.1
-config.early_stopping_patience = 10
+config.early_stopping_patience = 15
 
 family = Gamma()
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,

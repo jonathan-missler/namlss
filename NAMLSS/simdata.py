@@ -30,8 +30,8 @@ def sim_gauss(seed=1866):
 def sim_gamma(seed=1866):
     x1, x2, x3 = feature_sim()
 
-    ydist = tfp.distributions.Gamma(concentration=3*x1**2+4*x2+4*x3,
-                                    rate=(tf.exp(3*x1)+5*x2**4+2*tf.exp(x3)))
+    ydist = tfp.distributions.Gamma(concentration=2*tf.exp(2*x1**2+2*x2+x3**3),
+                                    rate=tf.exp(3*x1+5*x2**2+2*tf.exp(x3)))
     y = ydist.sample(seed=seed+3)
 
     return y, x1, x2, x3
@@ -40,8 +40,8 @@ def sim_gamma(seed=1866):
 def sim_invgauss(seed=1866):
     x1, x2, x3 = feature_sim()
 
-    ydist = tfp.distributions.InverseGaussian(loc=tf.cos(x1)**2+4*x2**3+tf.sqrt(x3),
-                                              concentration=4*tf.abs(x1)+tf.abs(tf.sin(x2))+tf.exp(x3))
+    ydist = tfp.distributions.InverseGaussian(loc=tf.exp(2*x1**4-4*x2**3-tf.exp(x3)),
+                                              concentration=4*tf.exp(4*x1+tf.abs(tf.sin(x2))-tf.exp(x3)))
     y = ydist.sample(seed=seed + 3)
 
     return y, x1, x2, x3
