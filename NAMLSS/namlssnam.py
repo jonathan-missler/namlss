@@ -1,3 +1,5 @@
+import pandas as pd
+
 from neural_additive_models.data_utils import load_dataset, split_training_dataset
 import tensorflow as tf
 import numpy as np
@@ -87,3 +89,4 @@ plt.show()
 test_loc, test_scale = trainer.model(test_features, training=False)
 
 print(trainer.family.log_likelihood(test_loc, test_scale, test_target))
+
