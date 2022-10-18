@@ -13,8 +13,8 @@ class Gaussian:
             dist = tfp.distributions.Normal(loc=loc, scale=tf.sqrt(tf.exp(scale)))
             out = -tf.reduce_sum(dist.log_prob(value=val))
         else:
-            mse = tf.keras.losses.MeanSquaredError()
-            out = mse(val, loc)
+            dist = tfp.distributions.Normal(loc=loc, scale=tfp.stats.stddev(val))
+            out = -tf.reduce_sum(dist.log_prob(value=val))
         return out
 
     def log_likelihood(self, loc, scale, val):
@@ -33,6 +33,7 @@ class Gamma:
 
     def __init__(self, log_rate=False):
         self._log_rate = log_rate
+        self._two_param = True
 
     def loss(self, conc, rate, val):
 
@@ -51,10 +52,10 @@ class Gamma:
 class InvGauss:
 
     def __init__(self):
-        pass
+        self._two_param = True
 
     def loss(self, loc, shape, val):
-        dist = tfp.distributions.InverseGaussian(loc=(1/tf.sqrt(tf.math.softplus(loc))), concentration=tf.exp(shape))
+        dist = tfp.distributions.InverseGaussian(loc=tf.exp(loc), concentration=tf.exp(shape))
         out = -tf.reduce_sum(dist.log_prob(value=val))
         return out
 

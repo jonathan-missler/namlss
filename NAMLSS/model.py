@@ -33,27 +33,41 @@ class NamLSS(tf.keras.Model):
         self.mod1 = models.NAM(num_inputs=self._num_inputs, num_units=self._num_units, trainable=self._trainable,
                                shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
                                **self._kwargs)
-        self.mod2 = models.NAM(num_inputs=self._num_inputs, num_units=self._num_units, trainable=self._trainable,
-                               shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
-                               **self._kwargs)
+
+        if self._family._two_param:
+            self.mod2 = models.NAM(num_inputs=self._num_inputs, num_units=self._num_units, trainable=self._trainable,
+                                shallow=self._shallow, feature_dropout=self._feature_dropout, dropout=self._dropout,
+                                **self._kwargs)
 
         self.mod1.build(input_shape=input_shape)
-        self.mod2.build(input_shape=input_shape)
+
+        if self._family._two_param:
+            self.mod2.build(input_shape=input_shape)
 
     def call(self, x, training=True):
         out1 = self.mod1(x, training=training)
-        out2 = self.mod2(x, training=training)
+
+        if self._family._two_param:
+            out2 = self.mod2(x, training=training)
+        else:
+            out2 = 1
 
         return out1, out2
 
     def _name_scope(self):
         name_scope1 = self.mod1._namescope()
-        name_scope2 = self.mod2._namescope()
+
+        if self._family._two_param:
+            name_scope2 = self.mod2._namescope()
 
         return name_scope1, name_scope2
 
     def calc_outputs(self, x, training=True):
         outputs1 = self.mod1.calc_outputs(x, training=training)
-        outputs2 = self.mod2.calc_outputs(x, training=training)
+
+        if self._family._two_param:
+            outputs2 = self.mod2.calc_outputs(x, training=training)
+        else:
+            outputs2 = 1
 
         return outputs1, outputs2

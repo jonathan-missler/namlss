@@ -15,17 +15,25 @@ config.activation = "relu"
 # load and prepare data
 features, target, colnames = load_dataset("Housing")
 
-split_generator = split_training_dataset(features, target, n_splits=1, stratified=False, random_state=1245)
+split_generator = split_training_dataset(features, target, n_splits=1, stratified=False, random_state=1245,
+                                         test_size=0.2)
 
 for i in split_generator:
-    (train_features, train_target), (val_features, val_target) = i
+    (train_features, train_target), (test_features, test_target) = i
+
+split_generator2 = split_training_dataset(train_features, train_target, n_splits=1, stratified=False, random_state=1245,
+                                          test_size=0.2)
+
+for j in split_generator2:
+    (train_features, train_target), (val_features, val_target) = j
+
 
 train_data = tf.data.Dataset.from_tensor_slices((train_features, train_target))
 val_data = tf.data.Dataset.from_tensor_slices((val_features, val_target))
+test_data = tf.data.Dataset.from_tensor_slices((test_features, test_target))
 
 train_batches = train_data.shuffle(1000).batch(config.batch_size)
 val_batches = val_data.shuffle(1000).batch(config.batch_size)
-
 
 # get num_inputs and num_units for NAM
 num_unique_vals = [
@@ -50,7 +58,7 @@ config.output_regularization2 = 0.01 #0.01
 config.l2_regularization1 = 0.1 #1.1
 config.l2_regularization2 = 0.01 #0.01
 
-family = Gaussian(two_param=True)
+family = Gaussian(two_param=False)
 model = NamLSS(num_inputs=num_inputs, num_units=num_units, family=family, feature_dropout=config.feature_dropout,
                dropout=config.dropout, shallow=config.shallow, activation=config.activation)
 optimizer = tf.keras.optimizers.Adam(learning_rate=config.lr)
@@ -58,30 +66,20 @@ trainer = Trainer(model, family, optimizer, config)
 
 train_losses, val_losses = trainer.run_training(train_batches, val_batches)
 
-loc_pred = trainer.model.mod1.calc_outputs(train_features, training=False)
-scale_pred = trainer.model.mod2.calc_outputs(train_features, training=False)
-scale_pred = tf.exp(scale_pred)
+loc_pred = trainer.model.mod1.calc_outputs(test_features, training=False)
 
 fig, ax = plt.subplots(nrows=2, ncols=4)
 i = 0
 for row in ax:
     for col in row:
-        col.scatter(train_features[:, i], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
-        col.scatter(train_features[:, i], loc_pred[i] + 2*scale_pred[i], color="green", alpha=0.7, s=1.5)
-        col.scatter(train_features[:, i], loc_pred[i] - 2*scale_pred[i], color="green", alpha=0.7, s=1.5)
-        col.scatter(train_features[:, i], loc_pred[i], color="crimson", s=3.5)
+        col.scatter(test_features[:, i], test_target, color="cornflowerblue", alpha=0.5, s=0.5)
+        col.scatter(test_features[:, i], loc_pred[i], color="crimson", s=3.5)
         col.set_xlabel(colnames[i])
         col.set_ylabel("Price")
         i += 1
 plt.tight_layout(pad=0.4, w_pad=0.3)
 plt.show()
 
-'''
-plt.scatter(train_features[:, 7], train_target, color="cornflowerblue", alpha=0.5, s=0.5)
-plt.scatter(train_features[:, 7], loc_pred[7] + 2*scale_pred[7], color="green", alpha=0.7, s=1.5)
-plt.scatter(train_features[:, 7], loc_pred[7] - 2*scale_pred[7], color="green", alpha=0.7, s=1.5)
-plt.scatter(train_features[:, 7], loc_pred[7], color="crimson", s=3.5)
-plt.xlabel(colnames[7])
-plt.ylabel("Price")
-plt.show()
-'''
+test_loc, test_scale = trainer.model(test_features, training=False)
+
+print(trainer.family.log_likelihood(test_loc, test_scale, test_target))
